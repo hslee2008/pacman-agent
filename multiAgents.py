@@ -29,42 +29,6 @@ def ln(x): return log(x) if x > 0 else -inf
 
 
 class ReflexAgent(Agent):
-    def getAction(self, gameState):
-        # Collect legal moves and successor states
-        legalMoves = gameState.getLegalActions()
-
-        # Choose one of the best actions
-        scores = [self.evaluationFunction(gameState, action) for action in legalMoves]
-        bestScore = max(scores)
-        bestIndices = [index for index in range(len(scores)) if scores[index] == bestScore]
-        chosenIndex = random.choice(bestIndices)  # Pick randomly among the best
-
-        return legalMoves[chosenIndex]
-
-    def evaluationFunction(self, currentGameState, action):
-        # Useful information you can extract from a GameState (pacman.py)
-        successorGameState = currentGameState.generatePacmanSuccessor(action)
-        newPos = successorGameState.getPacmanPosition()
-        newFood = successorGameState.getFood()
-        newGhostStates = successorGameState.getGhostStates()
-
-        distToPacman = partial(manhattanDistance, newPos)
-
-        def ghostF(ghost):
-            dist = distToPacman(ghost.getPosition())
-            if ghost.scaredTimer > dist:
-                return inf
-            if dist <= 1:
-                return -inf
-            return 0
-        ghostScore = min(map(ghostF, newGhostStates))
-
-        distToClosestFood = min(
-            map(distToPacman, newFood.asList()), default=inf)
-        closestFoodFeature = 1.0 / (1.0 + distToClosestFood)
-
-        return successorGameState.getScore() + ghostScore + closestFoodFeature
-
 
 def scoreEvaluationFunction(currentGameState):
     """
