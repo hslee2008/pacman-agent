@@ -29,6 +29,37 @@ def ln(x): return log(x) if x > 0 else -inf
 
 
 class ReflexAgent(Agent):
+    def getAction(self, gameState):
+        legalMoves = gameState.getLegalActions()
+        scores = [self.evaluationFunction(gameState, action) for action in legalMoves]
+        bestScore = max(scores)
+        bestIndices = [index for index in range(len(scores)) if scores[index] == bestScore]
+        chosenIndex = random.choice(bestIndices)
+
+        return legalMoves[chosenIndex]
+    
+    def evaluationFunction(self, currentGameState, action):
+        successorGameState = currentGameState.generatePacmanSuccessor(action)
+        newPos = successorGameState.getPacmanPosition()
+        newFood = successorGameState.getFood()
+        newGhostStates = successorGameState.getGhostStates()
+
+        distToPacman = partial(manhattanDistance, newPos)
+
+        def GhostF(ghost):
+            dist = distToPacman(ghost.getPosition())
+
+            if ghost.scaredTimer > dist:
+                return inf
+            if dist <= 1:
+                return -inf
+            return 0
+        
+        ghostScore = min(map(GhostF, newGhostStates))
+        distToClosestFood = min(map(distToPacman, newFood.asList()), default=inf)
+        closestFoodFeature = 1.0 / (1.0 + distToClosestFood)
+
+        return successorGameState.getScore() + ghostScore + closestFoodFeature
 
 def scoreEvaluationFunction(currentGameState):
     """
